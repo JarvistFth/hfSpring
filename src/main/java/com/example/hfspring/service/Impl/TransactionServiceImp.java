@@ -1,5 +1,6 @@
 package com.example.hfspring.service.Impl;
 
+import com.example.hfspring.Utils.ConstantUtils;
 import com.example.hfspring.fabric.FabricManager;
 import com.example.hfspring.demo.FabricStore;
 import com.example.hfspring.demo.FabricUser;
@@ -9,6 +10,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 @Service
 public class TransactionServiceImp implements TransactionService {
@@ -23,51 +26,78 @@ public class TransactionServiceImp implements TransactionService {
 
 
     @Override
-    public void initRelics(String relicId, String relicName, String ownerName) {
+    public String initRelics(String relicId, String relicName, String ownerName) {
         try{
-            manager.invoke("initMarble",relicName,ownerName);
+            return manager.invoke("initMarble",relicName,ownerName);
         }catch (Exception e){
             logger.error(e);
+            return e.getMessage();
         }finally {
             manager.removeALL();
         }
     }
 
     @Override
-    public void queryRelics(String relicId) {
-
-    }
-
-    @Override
-    public void queryAllRelics(String ownerName) {
-
-    }
-
-    @Override
-    public void queryHistory(String id) {
+    public String queryRelics(String relicId) {
         try{
-            manager.invoke("getHistoryForMarble",id);
+            return manager.invoke(ConstantUtils.CC_QUERYBYID,relicId);
         }catch (Exception e){
-            e.printStackTrace();
+            logger.error(e);
+            return e.getMessage();
         }finally {
             manager.removeALL();
         }
-
     }
 
     @Override
-    public void deleteRelics(String id) {
-
+    public String queryAllRelics(String ownerName) {
+        try{
+            return manager.invoke(ConstantUtils.CC_QUERYBYOWNER,ownerName);
+        }catch (Exception e){
+            return e.getMessage();
+        }finally {
+            manager.removeALL();
+        }
     }
 
     @Override
-    public void invokeTransaction(String relicId, String newOwnerName) {
+    public String queryHistory(String id) {
+        String ret = "";
+        try{
+            return manager.invoke(ConstantUtils.CC_QUERY_HISTORY,id);
+        }catch (Exception e){
+            return e.getMessage();
+        }finally {
+            manager.removeALL();
+        }
+    }
 
+    @Override
+    public String deleteRelics(String id) {
+        try{
+            return manager.invoke(ConstantUtils.CC_DELETE,id);
+        }catch (Exception e){
+            return e.getMessage();
+        }finally {
+            manager.removeALL();
+        }
+    }
+
+    @Override
+    public String invokeTransaction(String relicId, String newOwnerName) {
+        try{
+            return manager.invoke(ConstantUtils.CC_TRANSFER,relicId,newOwnerName);
+        }catch (Exception e){
+            return e.getMessage();
+        }finally {
+            manager.removeALL();
+        }
     }
 
     @Override
     public boolean initialize(String userName, String orgName) {
         try{
+            InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("/_admin.properties");
             File tmpStoreFile = new File("src/main/resources/_" + userName  +".properties");
             fabricStore = new FabricStore(tmpStoreFile);
             user = fabricStore.getMember(userName,orgName);
@@ -81,8 +111,5 @@ public class TransactionServiceImp implements TransactionService {
         return false;
     }
 
-    @Override
-    public void removeContext() {
 
-    }
 }

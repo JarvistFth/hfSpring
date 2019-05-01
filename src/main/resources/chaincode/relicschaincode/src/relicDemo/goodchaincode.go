@@ -52,6 +52,10 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	return shim.Success(nil)
 }
 
+func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface)pb.Response{
+
+}
+
 // Invoke - Our entry point for Invocations
 // ========================================
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
@@ -233,6 +237,8 @@ func (t *SimpleChaincode) delete(stub shim.ChaincodeStubInterface, args []string
 	}
 	return shim.Success(nil)
 }
+
+
 
 // ===========================================================
 // transfer a marble by setting a new owner name on the marble
@@ -665,13 +671,13 @@ func (t *SimpleChaincode) getHistoryForMarble(stub shim.ChaincodeStubInterface, 
 
 		buffer.WriteString(", \"Timestamp\":")
 		buffer.WriteString("\"")
-		buffer.WriteString(time.Unix(response.Timestamp.Seconds, int64(response.Timestamp.Nanos)).String())
+		buffer.WriteString(time.Now().String())
 		buffer.WriteString("\"")
 
-		buffer.WriteString(", \"IsDelete\":")
-		buffer.WriteString("\"")
-		buffer.WriteString(strconv.FormatBool(response.IsDelete))
-		buffer.WriteString("\"")
+		//buffer.WriteString(", \"IsDelete\":")
+		//buffer.WriteString("\"")
+		//buffer.WriteString(strconv.FormatBool(response.IsDelete))
+		//buffer.WriteString("\"")
 
 		buffer.WriteString("}")
 		bArrayMemberAlreadyWritten = true

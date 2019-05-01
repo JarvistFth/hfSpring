@@ -11,12 +11,15 @@ import org.hyperledger.fabric.sdk.exception.ProposalException;
 import org.hyperledger.fabric.sdk.security.CryptoSuite;
 import org.hyperledger.fabric_ca.sdk.HFCAClient;
 import org.hyperledger.fabric_ca.sdk.HFCAInfo;
+import org.hyperledger.fabric_ca.sdk.RegistrationRequest;
 import org.hyperledger.fabric_ca.sdk.exception.EnrollmentException;
 import org.hyperledger.fabric_ca.sdk.exception.InfoException;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
@@ -36,11 +39,19 @@ public class test {
 
 
     public static void main(String[] args){
-        while(true){
+//        while(true){
 
             HFConfig configHelper = new HFConfig();
             try{
                 hfcaClient = HFCAClient.createNewInstance(configHelper.caInfo);
+
+//                RegistrationRequest rr = new RegistrationRequest(userName,"org1.department1");
+//                rr.setSecret(secret);
+//                rr.setType(HFCAClient.HF);
+//                hfcaClient.register()
+
+
+
             }catch (Exception e){
                 logger.error(e.getMessage());
             }
@@ -49,6 +60,7 @@ public class test {
 //            tmpStoreFile.delete();
 //            logger.info("file exists");
 //        }
+
             FabricStore fs = new FabricStore(tmpStoreFile);
             FabricUser admin = fs.getMember("admin",configHelper.clientOrg.getName());
             if(!admin.isEnrolled()){
@@ -65,7 +77,7 @@ public class test {
             InstallProposalRequest installProposalRequest;
             final ChaincodeID chaincodeID = test.buildChaincode();
             try {
-                Thread.sleep(1000);
+//                Thread.sleep(1000);
                 if(admin != null){
 //                    client.newInstallProposalRequest();
                     client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
@@ -129,11 +141,12 @@ public class test {
 //                }
                 executeChaincode(client,channel);
                 channel.shutdown(false);
+
 //                channel.unregisterChaincodeEventListener()
             }catch (Exception e){
                 logger.error(e.getMessage());
             }
-        }
+//        }
 
 //        try{
 //                if(admin != null){
@@ -194,7 +207,7 @@ public class test {
             ProposalException, InvalidArgumentException, UnsupportedEncodingException,InterruptedException, ExecutionException, TimeoutException
     {
         ChaincodeExecuter executer = new ChaincodeExecuter(chaincodeName,chaincodeVersion);
-        executer.executeTransaction(client,channel,false,"getHistoryForMarble","2015212153");
+        executer.executeTransaction(client,channel,false,"initMarble","201903251852","chuande","jar");
     }
 
 }

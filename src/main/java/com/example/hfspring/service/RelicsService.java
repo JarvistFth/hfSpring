@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface RelicsService {
     //add delete select update
-    boolean addRelics(Relics relics);
+    boolean putRelics(Relics relics);
 
     boolean deleteRelicsById(Integer id);
 
@@ -15,4 +15,18 @@ public interface RelicsService {
     List<Relics> getAllRelics();
 
     boolean updateRelics(Relics relics);
+
+    List<Relics> getAllVarifiedRelics();
+
+    int updateRelicsVarify(Relics relics);
+
+    List<Relics> getAllNotVerified();
+
+    String deleteRelicsByName(Relics relics);
+
+    String addRelics(Relics relics);
+
+    String updatePhoto(Relics relics);
+
+
 }

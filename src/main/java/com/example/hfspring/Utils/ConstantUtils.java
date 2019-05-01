@@ -25,4 +25,21 @@ public final class ConstantUtils {
     public static final int StringRet = 100;
     public static final int JSONObjectRet = 101;
     public static final int JSONArrayRet = 102;
+
+
+    public static final String REQUEST_OK = "200";
+
+    public static final String REQUEST_ERROR = "400";
+
+    public static final String CC_INIT = "initMarble";
+    public static final String CC_DELETE = "delete";
+    public static final String CC_QUERY_HISTORY = "queryHistory";
+    public static final String CC_TRANSFER = "transferMarble";
+    public static final String CC_QUERYBYID = "readMarbles";
+    public static final String CC_QUERYBYOWNER = "queryMarblesByOwner";
+
+    public final static String AVATAR_PATH = "src/main/resources/avatar";
+    public final static String PIC_PATH = "src/main/resources/PIC";
+
+
 }

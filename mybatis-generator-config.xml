@@ -31,7 +31,7 @@
         <property name="endingDelimiter" value="`"/>
 
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://localhost:3306/fabsystem" userId="Jarvist" password="509509">
+                        connectionURL="jdbc:mysql://localhost:3306/fabsystem?nullCatalogMeansCurrent=true" userId="Jarvist" password="509509">
             <!-- 这里面可以设置property属性，每一个property属性都设置到配置的Driver上 -->
         </jdbcConnection>
 
@@ -166,10 +166,10 @@
         <!--</table>-->
         <!--<table schema="fabsystem" tableName="users" domainObjectName="Users"></table>-->
         <!--<table schema="fabsystem" tableName="organization" domainObjectName="Organization"></table>-->
-        <!--<table schema="fabsystem" tableName="relics" domainObjectName="Relics"></table>-->
-        <table schema="fabsystem" tableName="userVerify" domainObjectName="UserVerify"></table>
-        <table schema="fabsystem" tableName="role" domainObjectName="Role"></table>
-        <table schema="fabsystem" tableName="user_role" domainObjectName="UserRole"></table>
+        <table schema="fabsystem" tableName="relics" domainObjectName="Relics"></table>
+        <!--<table schema="fabsystem" tableName="role" domainObjectName="Role"></table>-->
+        <!--<table schema="fabsystem" tableName="user_role" domainObjectName="UserRole"></table>-->
+
     </context>
 </generatorConfiguration>
 

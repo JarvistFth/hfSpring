@@ -24,19 +24,23 @@ public class testUser {
 
     @Test
     public void testInsert(){
-        Users users = new Users();
-        users.setName("jjw");
-        users.setPassword(DigestUtils.sha1Hex("jjw".getBytes()));
-        users.setCreatetime(new Date());
-        users.setAddress("beijingbupt");
-        users.setOrganization("bupt");
-        users.setSex("man");
-        users.setTelephone("123456");
-        if(userServiceImp.userRregister(users)){
-            logger.info("insert users success");
-        }else{
-            logger.info("users exist");
-        }
+//        Users users = new Users();
+//        users.setName("jjw");
+        new Thread(){
+            @Override
+            public void run() {
+                Users users = new Users();
+                users.setName("jar");
+            }
+        }.start();
+        new Thread(){
+            @Override
+            public void run() {
+                Users users = new Users();
+                users.setName("jjw");
+            }
+        }.start();
+
     }
 
 //    @Test

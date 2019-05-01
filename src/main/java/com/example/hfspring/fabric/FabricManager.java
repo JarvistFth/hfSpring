@@ -1,6 +1,5 @@
 package com.example.hfspring.fabric;
 
-import com.alibaba.fastjson.JSONObject;
 import com.example.hfspring.Utils.ConstantUtils;
 import com.example.hfspring.demo.FabricStore;
 import com.example.hfspring.demo.FabricUser;
@@ -13,7 +12,11 @@ import org.hyperledger.fabric.sdk.exception.NetworkConfigurationException;
 import org.hyperledger.fabric.sdk.exception.ProposalException;
 import org.hyperledger.fabric.sdk.exception.TransactionException;
 import org.hyperledger.fabric.sdk.security.CryptoSuite;
+import org.hyperledger.fabric_ca.sdk.HFCAClient;
+import org.hyperledger.fabric_ca.sdk.RegistrationRequest;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -28,7 +31,23 @@ public class FabricManager {
 
     private HFClient client;
 
-//    private FabricStore fabricStore;
+    private FabricStore fabricStore;
+
+    public FabricStore getFabricStore() {
+        return fabricStore;
+    }
+
+    public void setFabricStore(FabricStore fabricStore) {
+        this.fabricStore = fabricStore;
+    }
+
+    public void setFabricStore(String username)throws IOException {
+        File file = new File("src/main/resources/_" + username  +".properties");
+        if(!file.exists()){
+            file.createNewFile();
+        }
+        this.fabricStore = new FabricStore(file);
+    }
 
 
     private HFConfig config;
@@ -38,6 +57,15 @@ public class FabricManager {
     private ChaincodeID chaincodeID;
     private int proposalWaitTime = 200000;
 
+    private HFCAClient hfcaClient;
+
+    public HFCAClient getHfcaClient() {
+        return hfcaClient;
+    }
+
+    public void setHfcaClient(HFCAClient hfcaClient) {
+        this.hfcaClient = hfcaClient;
+    }
 //    public FabricStore getFabricStore() {
 //        return fabricStore;
 //    }
@@ -67,6 +95,7 @@ public class FabricManager {
             throws Exception {
         config = HFConfig.getConfig();
         client = HFClient.createNewInstance();
+        hfcaClient = HFCAClient.createNewInstance(config.caInfo);
         client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
         client.setUserContext(user);
         this.channel = client.loadChannelFromConfig(ConstantUtils.channelName, config.getNetworkConfig());
@@ -111,37 +140,69 @@ public class FabricManager {
     }
 
     public void removeALL(){
-        client = null;
-        channel.shutdown(false);
+        if(client != null){
+            client = null;
+
+        }
+        if(channel != null){
+            channel.shutdown(false);
+        }
+
 
     }
 
+    public String query (String fcn, String ...args) throws
+            InvalidArgumentException,ProposalException{
+        QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
+        queryByChaincodeRequest.setFcn(fcn);
+        queryByChaincodeRequest.setArgs(args);
+        queryByChaincodeRequest.setChaincodeID(chaincodeID);
+        queryByChaincodeRequest.setProposalWaitTime(proposalWaitTime);
+        queryByChaincodeRequest.setChaincodeLanguage(QueryByChaincodeRequest.Type.GO_LANG);
+        Map<String, byte[]> tm2 = new HashMap<>();
+        tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
+        tm2.put("method", "QueryByChaincodeRequest".getBytes(UTF_8));
+        queryByChaincodeRequest.setTransientMap(tm2);
+        String payload = "";
+        Collection<ProposalResponse> queryProposals = channel.queryByChaincode(queryByChaincodeRequest, channel.getPeers());
+        for (ProposalResponse proposalResponse : queryProposals) {
+            if (!proposalResponse.isVerified() || proposalResponse.getStatus() != ProposalResponse.Status.SUCCESS) {
+                logger.info("Failed query proposal from peer " + proposalResponse.getPeer().getName() + " status: " + proposalResponse.getStatus() +
+                        ". Messages: " + proposalResponse.getMessage()
+                        + ". Was verified : " + proposalResponse.isVerified());
+            } else {
+                payload = proposalResponse.getProposalResponse().getResponse().getPayload().toStringUtf8();
+                logger.info( payload);
 
-    public void invoke(String fcn, String ...args)
-            throws InvalidArgumentException, ProposalException
-    {
+                //"Query payload of b from peer %s returned %s", proposalResponse.getPeer().getName(),
+            }
+        }
+        if(!payload.isEmpty()){
+            return payload;
+        }else{
+            return "error";
+        }
+    }
+
+    public String invoke(String fcn, String ...args)
+            throws InvalidArgumentException, ProposalException {
         TransactionProposalRequest transactionProposalRequest = client.newTransactionProposalRequest();
         transactionProposalRequest.setChaincodeID(chaincodeID);
         transactionProposalRequest.setFcn(fcn);
         transactionProposalRequest.setArgs(args);
         transactionProposalRequest.setProposalWaitTime(proposalWaitTime);
         transactionProposalRequest.setChaincodeLanguage(TransactionProposalRequest.Type.GO_LANG);
-        Map<String,byte[]> tm2 = new HashMap<>();
+        Map<String, byte[]> tm2 = new HashMap<>();
         tm2.put("HyperLedgerFabric", "TransactionProposalRequest:JavaSDK".getBytes(UTF_8));
         tm2.put("method", "TransactionProposalRequest".getBytes(UTF_8));
         tm2.put("result", ":)".getBytes(UTF_8));
         transactionProposalRequest.setTransientMap(tm2);
 
         Collection<ProposalResponse> transactionPropResp =
-                channel.sendTransactionProposal(transactionProposalRequest,channel.getPeers());
-
-    }
-
-    public Object getPayloadJSON(){
-
-        String payload = "";
+                channel.sendTransactionProposal(transactionProposalRequest, channel.getPeers());
         Collection<ProposalResponse> successful = new LinkedList<>();
         Collection<ProposalResponse> failed = new LinkedList<>();
+        String payload = "";
         for (ProposalResponse response : transactionPropResp) {
 
             if (response.getStatus() == ProposalResponse.Status.SUCCESS) {
@@ -155,11 +216,51 @@ public class FabricManager {
                 logger.warn(String.format("[×] Got failed response from peer %s => %s: %s ", response.getPeer().getName(), status, msg));
                 failed.add(response);
             }
-            return JSONObject.parse(payload);
+        }
+        if(!payload.isEmpty()){
+            return payload;
+        }else{
+            return "sth is wrong.. plz try again";
+        }
+
     }
 
+    public synchronized  FabricUser getOrgAdmin(){
+        FabricUser admin;
+        File tmpStoreFile = new File("src/main/resources/_" + "admin"  +".properties");
+//        if(tmpStoreFile.exists()){
+//            tmpStoreFile.delete();
+//            logger.info("file exists");
+//        }
+        FabricStore fs = new FabricStore(tmpStoreFile);
+        admin = fs.getMember("admin",config.clientOrg.getName());
+        return admin;
+    }
 
+    public boolean registerOnHF(String username,String affiliation,String password)
+    {
+        try {
+            RegistrationRequest rr = new RegistrationRequest(username,affiliation);
+            rr.setType(HFCAClient.HFCA_TYPE_USER);
+            rr.setSecret(password);
+            hfcaClient.register(rr,getOrgAdmin());
+            return true;
+        }catch (Exception e){
 
+            return false;
+        }
+    }
+
+    public boolean enrollOnHF(FabricUser user,String username,String password){
+        try{
+            user.setEnrollment(hfcaClient.enroll(username,password));
+            user.setMspId(config.clientOrg.getMspId());
+            return true;
+        }catch (Exception e ){
+            return false;
+        }
+
+    }
 
 
 
