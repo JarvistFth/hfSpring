@@ -111,5 +111,29 @@
     where name = #{name,jdbcType=VARCHAR}
   </select>
 
+  <delete id="removeRelics" parameterType="java.lang.String">
+    delete from
+  </delete>
+
+  <update id="updateByName" parameterType="com.example.hfspring.Model.Relics">
+    update relics
+    set name = #{name,jdbcType=VARCHAR},
+    onSalesTime = #{onsalestime,jdbcType=TIMESTAMP},
+    photo = #{photo,jdbcType=VARCHAR},
+    details = #{details,jdbcType=VARCHAR},
+    value = #{value,jdbcType=INTEGER},
+    verified = #{verified,jdbcType=BIT},
+    poster = #{poster,jdbcType=VARCHAR}
+    where name = #{name,jdbcType=INTEGER}
+  </update>
+
+  <update id="updatePhoto" parameterType="com.example.hfspring.Model.Relics">
+    update relics
+     set photo = #{photo,jdbcType=VARCHAR}
+     where name = #{name,jdbcType=VARCHAR}
+
+
+  </update>
+
 
 </mapper>

@@ -120,8 +120,20 @@
   </update>
 
   <select id="selectByName" parameterType="com.example.hfspring.Model.Users" resultType="com.example.hfspring.Model.Users">
-    select id, name, sex, createtime, organization, address, telephone, avatar, password,
-           balance, updatetime
+    select id, name, sex, createtime, organization, address, telephone, avatar,
+           balance
+    from users
+    where name = #{name,jdbcType=VARCHAR}
+  </select>
+
+  <update id="updateAvatar" parameterType="com.example.hfspring.Model.Users">
+    update users
+    set avatar = #{avatar,jdbcType=VARCHAR}
+    where name = #{name,jdbcType=VARCHAR}
+  </update>
+
+  <select id="getUserAvatar" parameterType="java.lang.String" resultType="java.lang.String">
+    select avatar
     from users
     where name = #{name,jdbcType=VARCHAR}
   </select>

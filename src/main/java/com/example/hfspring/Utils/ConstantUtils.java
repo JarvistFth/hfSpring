@@ -38,8 +38,8 @@ public final class ConstantUtils {
     public static final String CC_QUERYBYID = "readMarbles";
     public static final String CC_QUERYBYOWNER = "queryMarblesByOwner";
 
-    public final static String AVATAR_PATH = "src/main/resources/avatar";
-    public final static String PIC_PATH = "src/main/resources/PIC";
+    public final static String AVATAR_PATH = "/home/jarvist/hfspringRes/avatar";
+    public final static String PIC_PATH = "/home/jarvist/hfspringRes/relicsPhoto";
 
 
 }

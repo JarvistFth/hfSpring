@@ -3,6 +3,7 @@ package com.example.hfspring.service.Impl;
 import com.example.hfspring.Dao.RelicsMapper;
 import com.example.hfspring.Dao.UsersMapper;
 import com.example.hfspring.Model.Relics;
+import com.example.hfspring.Model.ResponseCode;
 import com.example.hfspring.Utils.ConstantUtils;
 import com.example.hfspring.fabric.FabricManager;
 import com.example.hfspring.service.RelicsService;
@@ -115,12 +116,39 @@ public class RelicsServiceImp implements RelicsService {
 
     @Override
     public String updatePhoto(Relics relics) {
-//        try{
-//            relicsMapper.updatePhoto(relics);
-//            return ConstantUtils.REQUEST_OK;
-//        }catch (Exception e){
-//            return ConstantUtils.REQUEST_ERROR;
-//        }
-        return "ok";
+       try{
+           relicsMapper.updatePhoto(relics);
+            return ConstantUtils.REQUEST_OK;
+        }catch (Exception e){
+            return ConstantUtils.REQUEST_ERROR;
+        }
+    }
+
+    @Override
+    public ResponseCode removeRelics(String name) {
+        ResponseCode res = new ResponseCode();
+        try{
+            relicsMapper.deleteByName(name);
+            res.setMsg("delete successfully");
+            res.setCode("200");
+        }catch (Exception e){
+            res.setMsg(e.getMessage());
+            res.setCode("400");
+        }
+        return res;
+    }
+
+    @Override
+    public ResponseCode updateRelicsByName(Relics relics) {
+        ResponseCode res = new ResponseCode();
+        try{
+            relicsMapper.updateByName(relics);
+            res.setMsg("update successfully");
+            res.setCode("200");
+        }catch (Exception e){
+            res.setMsg(e.getMessage());
+            res.setCode("400");
+        }
+        return res;
     }
 }

@@ -1,7 +1,9 @@
 package com.example.hfspring.service;
 
 import com.example.hfspring.Model.Relics;
+import com.example.hfspring.Model.ResponseCode;
 
+import javax.xml.ws.Response;
 import java.util.List;
 
 public interface RelicsService {
@@ -27,6 +29,10 @@ public interface RelicsService {
     String addRelics(Relics relics);
 
     String updatePhoto(Relics relics);
+
+    ResponseCode removeRelics(String name);
+
+    ResponseCode updateRelicsByName(Relics relics);
 
 
 }

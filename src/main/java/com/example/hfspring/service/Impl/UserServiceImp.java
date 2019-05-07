@@ -96,5 +96,13 @@ public class UserServiceImp implements UserService {
         return usersMapper.updatePassword(users);
     }
 
+    @Override
+    public int updateAvatar(Users users) {
+        return usersMapper.updateAvatar(users);
+    }
 
+    @Override
+    public String getAvatar(String name) {
+        return usersMapper.getUserAvatar(name);
+    }
 }

@@ -60,4 +60,8 @@ public interface UsersMapper {
 
     Users selectByName(String name);
 
+    int updateAvatar(Users users);
+
+    String getUserAvatar(String name);
+
 }

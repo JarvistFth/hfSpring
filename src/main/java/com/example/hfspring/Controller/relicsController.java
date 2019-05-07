@@ -25,9 +25,7 @@ public class relicsController {
     @PostMapping("/putRelics")
     @ResponseBody
     public boolean putRelics(@RequestBody Relics relics){
-        //set fabric client
-
-        //execute chaincode
+        //insert C
 
         return relicsServiceImp.putRelics(relics);
     }
@@ -48,7 +46,7 @@ public class relicsController {
     @DeleteMapping("/removeRelics/{id}")
     @ResponseBody
     public boolean deleteRelics(@PathVariable("id") Integer id){
-        return relicsServiceImp.deleteRelicsById(id);
+        return relicsServiceImp.removeRelics(id);
     }
 
     @GetMapping("/getRelics/{id}")
@@ -69,22 +67,25 @@ public class relicsController {
         return  relicsServiceImp.getAllNotVerified();
     }
 
-    @PostMapping("/uploadRelicsPic/{filename}")
-    public String uploadPic(@PathVariable("filename")String filename, MultipartFile file){
+
+
+    @PostMapping("/relicsPhoto/{relicsName}")
+    public String uploadRelicsPic(@PathVariable("relicsName") String relicsname, MultipartFile file){
         if(file.isEmpty()){
-            return ConstantUtils.REQUEST_ERROR;
+            return "400";
         }
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yy-MM-dd HH:mm");
-        String filepath = ConstantUtils.PIC_PATH + "/" + filename +"_" + dateFormat.format(new Date());
-        File saveFile = new File(filepath);
-        if(!saveFile.getParentFile().exists()){
-            saveFile.getParentFile().mkdirs();
-        }
-        try {
-            file.transferTo(saveFile);
-            return ConstantUtils.REQUEST_OK;
+        String filename = relicsname + file.getOriginalFilename();
+        String filepath = ConstantUtils.PIC_PATH + "/" + filename;
+        File desFile = new File(filepath);
+        try{
+            file.transferTo(desFile);
+            Relics relics = new Relics();
+            relics.setName(relicsname);
+            relics.setPhoto(filepath);
+            relicsServiceImp.updatePhoto(relics);
+            return "200";
         }catch (Exception e){
-            return ConstantUtils.REQUEST_ERROR;
+            return e.getMessage();
         }
 
     }

@@ -60,5 +60,10 @@ public interface RelicsMapper {
 
     int updateVarified(Relics relics);
 
-//    String updatePhoto(Relics relics);
+    String updatePhoto(Relics relics);
+
+
+    int removeRelics(String name);
+
+    int updateByName(Relics relics);
 }

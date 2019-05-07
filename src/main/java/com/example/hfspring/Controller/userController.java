@@ -1,22 +1,30 @@
 package com.example.hfspring.Controller;
 
+import com.example.hfspring.Model.Relics;
+import com.example.hfspring.Model.ResponseCode;
+import com.example.hfspring.Model.UserInfo;
 import com.example.hfspring.Model.Users;
 import com.example.hfspring.Utils.ConstantUtils;
+import com.example.hfspring.service.Impl.RelicsServiceImp;
 import com.example.hfspring.service.Impl.UserServiceImp;
 import io.netty.handler.codec.base64.Base64Decoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.Base64;
 
-@Controller
+@RestController
 @RequestMapping("/users")
 public class userController {
 
     @Autowired
     private UserServiceImp userServiceImp = null;
+
+    @Autowired
+    private RelicsServiceImp relicsServiceImp = null;
 
     @PostMapping("/register")
     @ResponseBody
@@ -42,7 +50,28 @@ public class userController {
         return userServiceImp.updateUsers(users);
     }
 
-    @PutMapping("/updateAvatar/{username}/img64={img64}")
+    @PostMapping("/avatar/{username}")
+    public String uploadAvatar(@PathVariable("username") String username, MultipartFile file){
+        if(file.isEmpty()){
+            return "400";
+        }
+        String filename = username + file.getOriginalFilename();
+        String filepath = ConstantUtils.AVATAR_PATH + "/" + filename;
+        File desFile = new File(filepath);
+        try{
+            file.transferTo(desFile);
+            Users users = new Users();
+            users.setName(username);
+            users.setAvatar(filepath);
+            userServiceImp.updateUsers(users);
+            return "200";
+        }catch (Exception e){
+            return e.getMessage();
+        }
+
+    }
+
+    @PutMapping("/avatar/{username}/img64={img64}")
     public String genAvatar(@PathVariable("img64") String img64,@PathVariable("username") String username){
         if(img64 == null){
             return "string is null";
@@ -64,25 +93,21 @@ public class userController {
         return ConstantUtils.REQUEST_OK;
     }
 
-    @GetMapping("/getAvatar/{username}")
-    public String getAvatar64(@PathVariable("username") String username){
-        String filepath = ConstantUtils.AVATAR_PATH + "/" + username + ".jpg";
-        File file = new File(filepath);
-        if(!file.exists()){
-            return ConstantUtils.REQUEST_ERROR + "file does not exist";
-        }else{
-            byte[] b = null;
-            try{
-                InputStream inputStream = new FileInputStream(filepath);
-                b = new byte[inputStream.available()];
-                inputStream.read(b);
-                inputStream.close();
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-            Base64.Encoder encoder = Base64.getEncoder();
-            return encoder.encodeToString(b);
-        }
+    @GetMapping("/details/{username}")
+    @ResponseBody
+    public UserInfo getUserDetails(@PathVariable("username")String username){
+
+        Users users = new Users();
+        users = userServiceImp.getUsers(username);
+        UserInfo userinfo = new UserInfo(users.getName(),users.getSex(),
+                users.getCreatetime().toString(),
+                users.getOrganization(),users.getAddress(),
+                users.getTelephone(),users.getAvatar(), users.getBalance());
+       return userinfo;
     }
+
+
+
+
 
 }
