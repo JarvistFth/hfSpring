@@ -8,6 +8,8 @@ import com.example.hfspring.demo.FabricUser;
 import com.example.hfspring.demo.HFConfig;
 import com.example.hfspring.fabric.FabricManager;
 import com.example.hfspring.service.UserService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hyperledger.fabric_ca.sdk.HFCAClient;
 import org.hyperledger.fabric_ca.sdk.RegistrationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +23,14 @@ import java.util.Date;
 @Service
 public class UserServiceImp implements UserService {
 
+    private static Log logger = LogFactory.getLog(UserServiceImp.class);
+
     @Autowired
     private UsersMapper usersMapper;
 
     private HFConfig config = HFConfig.getConfig();
 
-    private FabricManager manager = FabricManager.getInsatance();
+    private FabricManager manager = new FabricManager();
 
 
     @Override
@@ -41,13 +45,20 @@ public class UserServiceImp implements UserService {
         }
         if(SQLusers == null){
             try{
-                manager.setFabricStore(userName);
+                File tmpStoreFile = new File("src/main/resources/" + userName  +".properties");
+                if(!tmpStoreFile.exists()){
+                    tmpStoreFile.createNewFile();
+                }
+                FabricStore fabricStore = new FabricStore(tmpStoreFile);
+                manager.setFabricStore(fabricStore);
                 FabricUser user = manager.getFabricStore().getMember(userName,config.clientOrg.getName());
                 if(!user.isRegistered()){
-                    manager.registerOnHF(userName,"org1.department1",users.getPassword());
+                    logger.info("registering...");
+                    manager.registerOnHF(user,userName,"org1.department1",users.getPassword());
                 }
 
                 if(!user.isEnrolled()){
+                    logger.info("enrolling on...");
                     manager.enrollOnHF(user,userName,users.getPassword());
                 }
                 users.setCreatetime(new Date());

@@ -78,7 +78,7 @@
 
   <update id="updateVarified" parameterType="com.example.hfspring.Model.Relics">
     update relics
-    set varified = #{verified,jdbcType=BIT}
+    set verified = #{verified,jdbcType=BIT}
     where name = #{name,jdbcType=VARCHAR}
   </update>
 
@@ -93,14 +93,20 @@
     where name = #{name,jdbcType=VARCHAR}
   </delete>
 
-  <select id="selectByVarified" resultMap="BaseResultMap">
-    select id, name, onSalesTime, photo, details, value
-    where varified = 0
+  <select id="selectByVerified" resultMap="BaseResultMap">
+    select id, name, onSalesTime, photo, details, value ,verified, poster
     from relics
+    where verified = 0
   </select>
 
-  <select id="isVarified" parameterType="java.lang.String" resultType="java.lang.Boolean">
-    select varified
+  <select id="selectByNotVerified" resultMap="BaseResultMap">
+    select id, name, onSalesTime, photo, details, value ,verified, poster
+    from relics
+    where verified = 1
+  </select>
+
+  <select id="isVerified" parameterType="java.lang.String" resultType="java.lang.Boolean">
+    select verified
     where name = #{name,jdbcType=VARCHAR}
     from relics
   </select>

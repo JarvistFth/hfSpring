@@ -32,7 +32,7 @@ public class userController {
         return userServiceImp.userRregister(users);
     }
 
-    @PostMapping("/loginVerify")
+    @PostMapping("/login")
     @ResponseBody
     public String loginVerify(@RequestBody Users loginUsers){
         boolean verify = userServiceImp.loginVerified(loginUsers);
@@ -63,7 +63,7 @@ public class userController {
             Users users = new Users();
             users.setName(username);
             users.setAvatar(filepath);
-            userServiceImp.updateUsers(users);
+            userServiceImp.updateAvatar(users);
             return "200";
         }catch (Exception e){
             return e.getMessage();
@@ -71,27 +71,27 @@ public class userController {
 
     }
 
-    @PutMapping("/avatar/{username}/img64={img64}")
-    public String genAvatar(@PathVariable("img64") String img64,@PathVariable("username") String username){
-        if(img64 == null){
-            return "string is null";
-        }
-        Base64.Decoder decoder = Base64.getDecoder();
-        try{
-            byte[] b = decoder.decode(img64);
-            for(int i=0;i<b.length;i++){
-                b[i] += 256;
-            }
-            String filePath = ConstantUtils.AVATAR_PATH + "/" + username + ".jpg";
-            OutputStream out = new FileOutputStream(filePath);
-            out.write(b);
-            out.flush();
-            out.close();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return ConstantUtils.REQUEST_OK;
-    }
+//    @PutMapping("/avatar/{username}/img64={img64}")
+//    public String genAvatar(@PathVariable("img64") String img64,@PathVariable("username") String username){
+//        if(img64 == null){
+//            return "string is null";
+//        }
+//        Base64.Decoder decoder = Base64.getDecoder();
+//        try{
+//            byte[] b = decoder.decode(img64);
+//            for(int i=0;i<b.length;i++){
+//                b[i] += 256;
+//            }
+//            String filePath = ConstantUtils.AVATAR_PATH + "/" + username + ".jpg";
+//            OutputStream out = new FileOutputStream(filePath);
+//            out.write(b);
+//            out.flush();
+//            out.close();
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//        return ConstantUtils.REQUEST_OK;
+//    }
 
     @GetMapping("/details/{username}")
     @ResponseBody

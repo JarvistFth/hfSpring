@@ -83,6 +83,7 @@ public class FabricStore {
         // Try to get the SampleUser state from the cache
         FabricUser fabricUser = members.get(FabricUser.toKeyValStoreName(name, org));
         if (null != fabricUser) {
+//            logger.info("fabric User is not null");
             return fabricUser;
         }
 

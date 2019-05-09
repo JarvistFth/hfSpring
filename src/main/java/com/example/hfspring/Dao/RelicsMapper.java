@@ -50,15 +50,18 @@ public interface RelicsMapper {
 
     Relics getRelicsByName(String name);
 
-    Boolean isVarified(String name);
+    Boolean isVerified(String name);
 
-    List<Relics> selectByVarified();
+    List<Relics> selectByVerified();
+
+    List<Relics> selectByNotVerified();
+
 
     int deleteByName(String name);
 
     int updateVal(Relics relics);
 
-    int updateVarified(Relics relics);
+    int updateVerified(Relics relics);
 
     String updatePhoto(Relics relics);
 

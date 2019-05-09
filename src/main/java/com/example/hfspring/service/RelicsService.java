@@ -18,9 +18,9 @@ public interface RelicsService {
 
     boolean updateRelics(Relics relics);
 
-    List<Relics> getAllVarifiedRelics();
+    List<Relics> getAllVerifiedRelics();
 
-    int updateRelicsVarify(Relics relics);
+    int updateRelicsVerify(Relics relics);
 
     List<Relics> getAllNotVerified();
 

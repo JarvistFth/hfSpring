@@ -177,6 +177,7 @@ public class FabricUser implements User, Serializable {
 
     public void setEnrollmentSecret(String enrollmentSecret) {
         this.enrollmentSecret = enrollmentSecret;
+        saveState();
     }
 
     public boolean isRegistered(){

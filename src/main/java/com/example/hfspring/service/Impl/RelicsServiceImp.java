@@ -5,28 +5,38 @@ import com.example.hfspring.Dao.UsersMapper;
 import com.example.hfspring.Model.Relics;
 import com.example.hfspring.Model.ResponseCode;
 import com.example.hfspring.Utils.ConstantUtils;
+import com.example.hfspring.Utils.hfUtils;
+import com.example.hfspring.demo.FabricStore;
+import com.example.hfspring.demo.FabricUser;
 import com.example.hfspring.fabric.FabricManager;
 import com.example.hfspring.service.RelicsService;
 import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
 import org.hyperledger.fabric.sdk.exception.ProposalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import static java.util.UUID.randomUUID;
 
 @Service
+@Transactional
 public class RelicsServiceImp implements RelicsService {
 
     @Autowired
     RelicsMapper relicsMapper = null;
 
-    FabricManager fabricManager;
+
+
     @Override
     public boolean putRelics(Relics relics) {
         try{
+            relics.setOnsalestime(new Date());
+            relics.setVerified(false);
             relicsMapper.insert(relics);
             return true;
         }catch(Exception e){
@@ -69,27 +79,25 @@ public class RelicsServiceImp implements RelicsService {
     }
 
     @Override
-    public List<Relics> getAllVarifiedRelics() {
-        return relicsMapper.selectByVarified();
+    public List<Relics> getAllVerifiedRelics() {
+        return relicsMapper.selectByVerified();
     }
 
     @Override
-    public int updateRelicsVarify(Relics relics) {
-        return relicsMapper.updateVarified(relics);
+    public int updateRelicsVerify(Relics relics) {
+        return relicsMapper.updateVerified(relics);
     }
 
     @Override
     public List<Relics> getAllNotVerified() {
-        return relicsMapper.selectByVarified();
+        return relicsMapper.selectByNotVerified();
     }
 
     @Override
     public String deleteRelicsByName(Relics relics) {
-        if(relicsMapper.isVarified(relics.getName()))
+        if(relicsMapper.isVerified(relics.getName()))
         {
             try{
-                fabricManager = FabricManager.getInsatance();
-                fabricManager.invoke(ConstantUtils.CC_DELETE,relics.getId().toString());
                 relicsMapper.deleteByName(relics.getName());
                 return ConstantUtils.REQUEST_OK;
             }catch (Exception e){
@@ -102,11 +110,9 @@ public class RelicsServiceImp implements RelicsService {
     }
 
     @Override
-    public String addRelics(Relics relics) {
+    public String addRelics( Relics relics) {
         try{
-            String uuid = UUID.randomUUID().toString().replaceAll("-","");
-            fabricManager = FabricManager.getInsatance();
-            fabricManager.invoke(ConstantUtils.CC_INIT,uuid,relics.getName(),relics.getPoster());
+            hfUtils.getManager().invoke(ConstantUtils.CC_INIT,relics.getId().toString());
             return ConstantUtils.REQUEST_OK;
         }catch (Exception e){
             return ConstantUtils.REQUEST_ERROR;
@@ -151,4 +157,8 @@ public class RelicsServiceImp implements RelicsService {
         }
         return res;
     }
+
+
+
+
 }

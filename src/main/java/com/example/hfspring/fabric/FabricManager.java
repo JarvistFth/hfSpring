@@ -14,6 +14,7 @@ import org.hyperledger.fabric.sdk.exception.TransactionException;
 import org.hyperledger.fabric.sdk.security.CryptoSuite;
 import org.hyperledger.fabric_ca.sdk.HFCAClient;
 import org.hyperledger.fabric_ca.sdk.RegistrationRequest;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,14 +25,26 @@ import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+
 public class FabricManager {
     private static Log logger = LogFactory.getLog(FabricManager.class);
 
-    private static FabricManager insatance = new FabricManager();
+    FabricUser user;
 
+    //client
     private HFClient client;
-
+    //fabric store
     private FabricStore fabricStore;
+
+    private static HFConfig config;
+
+    private Channel channel;
+
+    private ChaincodeID chaincodeID;
+
+    private int proposalWaitTime = 200000;
+
+    private HFCAClient hfcaClient;
 
     public FabricStore getFabricStore() {
         return fabricStore;
@@ -42,83 +55,53 @@ public class FabricManager {
     }
 
     public void setFabricStore(String username)throws IOException {
-        File file = new File("src/main/resources/_" + username  +".properties");
+        File file = new File("src/main/resources/" + username  +".properties");
         if(!file.exists()){
+            logger.info("file not exists");
             file.createNewFile();
         }
         this.fabricStore = new FabricStore(file);
     }
 
 
-    private HFConfig config;
-
-    private Channel channel;
-
-    private ChaincodeID chaincodeID;
-    private int proposalWaitTime = 200000;
-
-    private HFCAClient hfcaClient;
-
     public HFCAClient getHfcaClient() {
         return hfcaClient;
     }
 
-    public void setHfcaClient(HFCAClient hfcaClient) {
-        this.hfcaClient = hfcaClient;
+    public void setHfcaClient() throws Exception {
+        hfcaClient = HFCAClient.createNewInstance(config.caInfo);
     }
-//    public FabricStore getFabricStore() {
-//        return fabricStore;
-//    }
-//
-//    public void setFabricStore(FabricStore fabricStore) {
-//        this.fabricStore = fabricStore;
-//    }
 
 
-    private FabricManager(){
-        config = HFConfig.getConfig();
-    }
 
     public HFClient getClient() {
         return client;
     }
 
     public void setClient(FabricUser user) throws Exception{
-        client = HFClient.createNewInstance();
-        client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
-        client.setUserContext(user);
+            client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
+            client.setUserContext(user);
     }
 
 
     //constructor
-    public FabricManager(FabricUser user)
-            throws Exception {
+    public FabricManager() {
         config = HFConfig.getConfig();
-        client = HFClient.createNewInstance();
-        hfcaClient = HFCAClient.createNewInstance(config.caInfo);
-        client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
-        client.setUserContext(user);
-        this.channel = client.loadChannelFromConfig(ConstantUtils.channelName, config.getNetworkConfig());
-//        channel.registerBlockListener(blockEvent -> {
-//            logger.info(String.format("Receive block event (number %s) from %s",
-//                    blockEvent.getBlockNumber(), blockEvent.getPeer()));
-//        });
-
-
-
+        this.client = HFClient.createNewInstance();
     }
 
-    public static FabricManager getInsatance(){
-        return insatance;
-    }
-
-
-    public void setChaincodeID() {
-        this.chaincodeID = ChaincodeID.newBuilder()
-                .setName(ConstantUtils.chaincodeName)
-                .setPath(ConstantUtils.chaincodePath)
-                .setVersion(ConstantUtils.chaincodeVersion)
-                .build();
+    public FabricManager(String username,String orgName){
+        config = HFConfig.getConfig();
+        this.client = HFClient.createNewInstance();
+        File file = new File(ConstantUtils.resourcesPath + username + ".properties");
+        fabricStore = new FabricStore(file);
+        user = fabricStore.getMember(username,orgName);
+        try{
+            setClient(user);
+            setChannel();
+        }catch (Exception e){
+            e.getMessage();
+        }
     }
 
 
@@ -128,27 +111,23 @@ public class FabricManager {
     }
 
     public void setChannel() throws InvalidArgumentException, NetworkConfigurationException, TransactionException {
-        this.channel = client.loadChannelFromConfig(ConstantUtils.channelName, config.getNetworkConfig());
-        if(!channel.isInitialized()){
-            channel.initialize();
+        if(client.getUserContext() != null){
+            this.channel = client.loadChannelFromConfig(ConstantUtils.channelName, config.getNetworkConfig());
+            if(!channel.isInitialized()){
+                channel.initialize();
+            }
+            this.chaincodeID = ChaincodeID.newBuilder()
+                    .setName(ConstantUtils.chaincodeName)
+                    .setPath(ConstantUtils.chaincodePath)
+                    .setVersion(ConstantUtils.chaincodeVersion)
+                    .build();
         }
-        this.chaincodeID = ChaincodeID.newBuilder()
-                .setName(ConstantUtils.chaincodeName)
-                .setPath(ConstantUtils.chaincodePath)
-                .setVersion(ConstantUtils.chaincodeVersion)
-                .build();
     }
 
     public void removeALL(){
-        if(client != null){
-            client = null;
-
-        }
         if(channel != null){
             channel.shutdown(false);
         }
-
-
     }
 
     public String query (String fcn, String ...args) throws
@@ -202,7 +181,9 @@ public class FabricManager {
                 channel.sendTransactionProposal(transactionProposalRequest, channel.getPeers());
         Collection<ProposalResponse> successful = new LinkedList<>();
         Collection<ProposalResponse> failed = new LinkedList<>();
+
         String payload = "";
+        String msg = "";
         for (ProposalResponse response : transactionPropResp) {
 
             if (response.getStatus() == ProposalResponse.Status.SUCCESS) {
@@ -212,22 +193,27 @@ public class FabricManager {
                 logger.info(String.format("payload is : " + payload));
             } else {
                 String status = response.getStatus().toString();
-                String msg = response.getMessage();
+                msg = response.getMessage();
                 logger.warn(String.format("[×] Got failed response from peer %s => %s: %s ", response.getPeer().getName(), status, msg));
                 failed.add(response);
             }
         }
+        channel.sendTransaction(successful, Channel.TransactionOptions.createTransactionOptions()
+                    .userContext(client.getUserContext())
+                    .orderers(channel.getOrderers()) .shuffleOrders(false) );
+
+
         if(!payload.isEmpty()){
             return payload;
         }else{
-            return "sth is wrong.. plz try again";
+            return msg;
         }
 
     }
 
     public synchronized  FabricUser getOrgAdmin(){
         FabricUser admin;
-        File tmpStoreFile = new File("src/main/resources/_" + "admin"  +".properties");
+        File tmpStoreFile = new File("src/main/resources/" + "admin"  +".properties");
 //        if(tmpStoreFile.exists()){
 //            tmpStoreFile.delete();
 //            logger.info("file exists");
@@ -237,13 +223,13 @@ public class FabricManager {
         return admin;
     }
 
-    public boolean registerOnHF(String username,String affiliation,String password)
+    public boolean registerOnHF(FabricUser user, String username,String affiliation,String password)
     {
         try {
             RegistrationRequest rr = new RegistrationRequest(username,affiliation);
-            rr.setType(HFCAClient.HFCA_TYPE_USER);
             rr.setSecret(password);
-            hfcaClient.register(rr,getOrgAdmin());
+            String ss = hfcaClient.register(rr,getOrgAdmin());
+            user.setEnrollmentSecret(ss);
             return true;
         }catch (Exception e){
 
@@ -253,8 +239,10 @@ public class FabricManager {
 
     public boolean enrollOnHF(FabricUser user,String username,String password){
         try{
-            user.setEnrollment(hfcaClient.enroll(username,password));
+            Enrollment enrollment = hfcaClient.enroll(username,password);
+            user.setEnrollment(enrollment);
             user.setMspId(config.clientOrg.getMspId());
+            logger.info("enroll ok");
             return true;
         }catch (Exception e ){
             return false;

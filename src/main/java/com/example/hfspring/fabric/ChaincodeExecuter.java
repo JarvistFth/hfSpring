@@ -27,7 +27,7 @@ public class ChaincodeExecuter {
     private String version;
     private static String chaincodePath = "src/main/java/com/example/hfspring/chaincode";
     private ChaincodeID ccId;
-    private long waitTime = 6000;
+    private long waitTime = 60;
 
     public ChaincodeExecuter(String chaincodeName, String version) {
         this.chaincodeName = chaincodeName;
@@ -100,14 +100,7 @@ public class ChaincodeExecuter {
 
         if (invoke) {
             logger.info("Sending transaction to orderers...");
-            channel.sendTransaction(successful).thenApply(transactionEvent -> {
-                logger.info("Orderer response: txid" + transactionEvent.getTransactionID());
-                logger.info("Orderer response: block number: " + transactionEvent.getBlockEvent().getBlockNumber());
-                return null;
-            }).exceptionally(e -> {
-                logger.error("Orderer exception happened: ", e);
-                return null;
-            }).get(waitTime, TimeUnit.SECONDS);
+            channel.sendTransaction(successful).get(waitTime, TimeUnit.SECONDS);
         }
     }
 }

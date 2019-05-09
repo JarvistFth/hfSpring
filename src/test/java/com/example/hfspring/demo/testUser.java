@@ -5,6 +5,9 @@ import com.example.hfspring.fabric.FabricManager;
 import com.example.hfspring.service.Impl.UserServiceImp;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
+import org.hyperledger.fabric.sdk.NetworkConfig;
+import org.hyperledger.fabric_ca.sdk.HFCAClient;
+import org.hyperledger.fabric_ca.sdk.HFCAInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,23 +26,8 @@ public class testUser {
     private UserServiceImp userServiceImp;
 
     @Test
-    public void testInsert(){
-//        Users users = new Users();
-//        users.setName("jjw");
-        new Thread(){
-            @Override
-            public void run() {
-                Users users = new Users();
-                users.setName("jar");
-            }
-        }.start();
-        new Thread(){
-            @Override
-            public void run() {
-                Users users = new Users();
-                users.setName("jjw");
-            }
-        }.start();
+    public void testInsert() {
+
 
     }
 
@@ -55,30 +43,5 @@ public class testUser {
 //        }
 //    }
 
-    @Test
-    public void testUpdate(){
-        Users users = new Users();
-        users.setName("ojbk");
-    }
-
-    private FabricManager manager ;
-    private FabricStore fabricStore;
-    private FabricUser user;
-
-//    @Test
-//    public void testFabricManager(){
-//        String userName = "admin";
-//        HFConfig config = HFConfig.getConfig();
-//        String orgName = config.getClientOrg().getName();
-//        try{
-//            File tmpStoreFile = new File("/root/project/hfspring/src/main/resources/_admin.properties");
-//            fabricStore = new FabricStore(tmpStoreFile);
-//            user = fabricStore.getMember(userName,orgName);
-//            manager = new FabricManager(user);
-////            manager.setFabricStore(fabricStore);
-//            manager.invoke("getHistoryForMarble","2015212153");
-//        }catch (Exception e){
-//            logger.error(e);
-//        }
-//    }
 }
+

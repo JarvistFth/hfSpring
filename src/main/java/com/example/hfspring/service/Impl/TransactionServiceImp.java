@@ -7,6 +7,7 @@ import com.example.hfspring.demo.FabricUser;
 import com.example.hfspring.service.TransactionService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -17,16 +18,16 @@ import java.io.InputStream;
 public class TransactionServiceImp implements TransactionService {
 
     private Log logger = LogFactory.getLog(TransactionServiceImp.class);
-    private FabricManager manager ;
+
     private FabricStore fabricStore;
     private FabricUser user;
 
-
+    private FabricManager manager = new FabricManager();
 
 
 
     @Override
-    public String initRelics(String relicId, String relicName, String ownerName) {
+    public String initRelics( String relicId, String relicName, String ownerName) {
         try{
             return manager.invoke("initMarble",relicName,ownerName);
         }catch (Exception e){
@@ -94,21 +95,19 @@ public class TransactionServiceImp implements TransactionService {
         }
     }
 
-    @Override
     public boolean initialize(String userName, String orgName) {
         try{
-            InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("/_admin.properties");
-            File tmpStoreFile = new File("src/main/resources/_" + userName  +".properties");
+            File tmpStoreFile = new File("src/main/resources/" + userName  +".properties");
             fabricStore = new FabricStore(tmpStoreFile);
-            user = fabricStore.getMember(userName,orgName);
-            manager = FabricManager.getInsatance();
-            manager.setClient(user);
+            FabricUser txUser = fabricStore.getMember(userName,orgName);
+            manager.setFabricStore(fabricStore);
+            manager.setClient(txUser);
             manager.setChannel();
-//            manager.setFabricStore(fabricStore);
+            return true;
         }catch (Exception e){
             logger.error(e);
+            return false;
         }
-        return false;
     }
 
 
