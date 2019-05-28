@@ -34,7 +34,7 @@ public class TransactionServiceImp implements TransactionService {
             logger.error(e);
             return e.getMessage();
         }finally {
-            manager.removeALL();
+//            manager.removeALL();
         }
     }
 
@@ -46,7 +46,7 @@ public class TransactionServiceImp implements TransactionService {
             logger.error(e);
             return e.getMessage();
         }finally {
-            manager.removeALL();
+//            manager.removeALL();
         }
     }
 
@@ -57,7 +57,7 @@ public class TransactionServiceImp implements TransactionService {
         }catch (Exception e){
             return e.getMessage();
         }finally {
-            manager.removeALL();
+//            manager.removeALL();
         }
     }
 
@@ -91,7 +91,7 @@ public class TransactionServiceImp implements TransactionService {
         }catch (Exception e){
             return e.getMessage();
         }finally {
-            manager.removeALL();
+//            manager.removeALL();
         }
     }
 

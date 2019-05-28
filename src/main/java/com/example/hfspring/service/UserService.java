@@ -1,9 +1,10 @@
 package com.example.hfspring.service;
 
+import com.example.hfspring.Model.ResponseCode;
 import com.example.hfspring.Model.Users;
 
 public interface UserService {
-    String userRregister(Users users);
+    ResponseCode userRregister(Users users);
 
     boolean loginVerified(Users users);
 

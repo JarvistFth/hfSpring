@@ -1,4 +1,4 @@
-package com.example.hfspring.fabric;
+package com.example.hfspring.demo;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
@@ -10,11 +10,14 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hyperledger.fabric.protos.discovery.Protocol;
-import org.hyperledger.fabric.sdk.*;
+import org.hyperledger.fabric.sdk.ChaincodeID;
+import org.hyperledger.fabric.sdk.Channel;
+import org.hyperledger.fabric.sdk.HFClient;
+import org.hyperledger.fabric.sdk.ProposalResponse;
+import org.hyperledger.fabric.sdk.TransactionProposalRequest;
+import org.hyperledger.fabric.sdk.TransactionRequest;
 import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
 import org.hyperledger.fabric.sdk.exception.ProposalException;
-import org.springframework.stereotype.Component;
 
 public class ChaincodeExecuter {
     private static final Log logger = LogFactory.getLog(ChaincodeExecuter.class);
@@ -23,7 +26,7 @@ public class ChaincodeExecuter {
     private String version;
     private static String chaincodePath = "src/main/java/com/example/hfspring/chaincode";
     private ChaincodeID ccId;
-    private long waitTime = 30;
+    private long waitTime = 6000;
 
     public ChaincodeExecuter(String chaincodeName, String version) {
         this.chaincodeName = chaincodeName;
@@ -78,11 +81,6 @@ public class ChaincodeExecuter {
         List<ProposalResponse> successful = new LinkedList();
         List<ProposalResponse> failed = new LinkedList();
 
-        Collection<Peer> peers = channel.getPeers();
-        for(Peer peer:peers){
-            logger.info(peer.getName());
-        }
-
         Collection<ProposalResponse> transactionPropResp = channel.sendTransactionProposal(transactionProposalRequest, channel.getPeers());
         for (ProposalResponse response : transactionPropResp) {
 
@@ -90,7 +88,6 @@ public class ChaincodeExecuter {
                 String payload = new String(response.getChaincodeActionResponsePayload());
                 logger.info(String.format("[√] Got success response from peer %s => payload: %s", response.getPeer().getName(), payload));
                 successful.add(response);
-                logger.info(String.format("payload is : " + payload));
             } else {
                 String status = response.getStatus().toString();
                 String msg = response.getMessage();
@@ -101,7 +98,14 @@ public class ChaincodeExecuter {
 
         if (invoke) {
             logger.info("Sending transaction to orderers...");
-            channel.sendTransaction(successful).get(waitTime, TimeUnit.SECONDS);
+            channel.sendTransaction(successful).thenApply(transactionEvent -> {
+                logger.info("Orderer response: txid" + transactionEvent.getTransactionID());
+                logger.info("Orderer response: block number: " + transactionEvent.getBlockEvent().getBlockNumber());
+                return null;
+            }).exceptionally(e -> {
+                logger.error("Orderer exception happened: ", e);
+                return null;
+            }).get(waitTime, TimeUnit.SECONDS);
         }
     }
 }

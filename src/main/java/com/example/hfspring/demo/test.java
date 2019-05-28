@@ -36,7 +36,7 @@ public class test {
     public static Channel channel ;
     private static HFCAClient hfcaClient ;
 
-    private static final String testUser = "jjj";
+    private static final String testUser = "Jarvist";
     private static final String testSecret = "123456";
 
 
@@ -51,7 +51,12 @@ public class test {
                 f.createNewFile();
             }
             FabricStore fabricStore = new FabricStore(f);
-            FabricUser admin = getFabricUser(clientOrg, caInfo,fabricStore);
+            FabricUser admin = fabricStore.getMember(userName,clientOrg.getName());
+
+            if(!admin.isEnrolled()){
+                admin.setEnrollment(hfcaClient.enroll(userName,secret));
+                admin.setMspId(clientOrg.getMspId());
+            }
 
             HFClient client = HFClient.createNewInstance();
             client.setCryptoSuite(CryptoSuite.Factory.getCryptoSuite());
@@ -86,7 +91,7 @@ public class test {
                 user1.setEnrollment(enrollment);
                 user1.setMspId(clientOrg.getMspId());
             }
-            client.setUserContext(user1);
+            client.setUserContext(admin);
 
 
             logger.info("===========client context is : " + client.getUserContext().getName());
@@ -97,7 +102,7 @@ public class test {
             //Collection<String> cc = channel.getDiscoveredChaincodeNames();
 
             channel.initialize();
-
+//
             channel.registerBlockListener(blockEvent -> {
                 logger.info(String.format("Receive block event (number %s) from %s", blockEvent.getBlockNumber(), blockEvent.getPeer()));
             });
@@ -129,6 +134,7 @@ public class test {
     {
         HFCAClient hfcaClient = HFCAClient.createNewInstance(caInfo);
         HFCAInfo cainfo = hfcaClient.info();
+
         logger.info("CA name: " + cainfo.getCAName());
         logger.info("CA version: " + cainfo.getVersion());
 
@@ -151,7 +157,7 @@ public class test {
             ProposalException, InvalidArgumentException, UnsupportedEncodingException,InterruptedException, ExecutionException, TimeoutException
     {
         ChaincodeExecuter executer = new ChaincodeExecuter(chaincodeName,chaincodeVersion);
-        executer.executeTransaction(client,channel,true,"transferMarble","2015212156","jar","jar1");
+        executer.executeTransaction(client,channel,true,"getHistoryForMarble","2015212154");
     }
 
 }

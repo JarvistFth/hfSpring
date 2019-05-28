@@ -659,10 +659,10 @@ func (t *SimpleChaincode) getHistoryForMarble(stub shim.ChaincodeStubInterface, 
 		buffer.WriteString(response.TxId)
 		buffer.WriteString("\"")
 
-		buffer.WriteString(", \"Value\":")
+		buffer.WriteString(", \"TXValue\":")
 		// if it was a delete operation on given key, then we need to set the
-		//corresponding value null. Else, we will write the response.Value
-		//as-is (as the Value itself a JSON marble)
+		//corresponding value null. Else, we will write the response.TXValue
+		//as-is (as the TXValue itself a JSON marble)
 		if response.IsDelete {
 			buffer.WriteString("null")
 		} else {

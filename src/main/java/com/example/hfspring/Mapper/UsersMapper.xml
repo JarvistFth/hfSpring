@@ -87,11 +87,11 @@
   </select>
 
   <select id="getUserPassword" parameterType="java.lang.String" resultType="java.lang.String">
-    select password from users where username = #{username,jdbcType=VARCHAR}
+    select password from users where name = #{name,jdbcType=VARCHAR}
   </select>
 
   <select id="getUserBalance" parameterType="java.lang.String" resultType="java.lang.Integer">
-    select balance from users where username = #{username,jdbcType=VARCHAR}
+    select balance from users where name = #{username,jdbcType=VARCHAR}
   </select>
 
   <update id="updatePersonalInfo" parameterType="com.example.hfspring.Model.Users" >

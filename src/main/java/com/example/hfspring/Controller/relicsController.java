@@ -110,9 +110,12 @@ public class relicsController {
 
     //
     @PostMapping("/relicsPhoto/{relicsName}")
-    public String uploadRelicsPic(@PathVariable("relicsName") String relicsname, MultipartFile file){
+    public ResponseCode uploadRelicsPic(@PathVariable("relicsName") String relicsname, MultipartFile file){
+        ResponseCode responseCode = new ResponseCode();
+
         if(file.isEmpty()){
-            return "400";
+            responseCode.setCode("400");
+            responseCode.setMsg("file not exist！");
         }
         String filename = relicsname + file.getOriginalFilename();
         String filepath = ConstantUtils.PIC_PATH + "/" + filename;
@@ -121,13 +124,15 @@ public class relicsController {
             file.transferTo(desFile);
             Relics relics = new Relics();
             relics.setName(relicsname);
-            relics.setPhoto(filepath);
+            relics.setPhoto(filename);
             relicsServiceImp.updatePhoto(relics);
-            return "200";
+            responseCode.setCode("200");
+            responseCode.setMsg("file upload successful！");
         }catch (Exception e){
-            return e.getMessage();
+            responseCode.setCode("400");
+            responseCode.setMsg(e.getMessage());
         }
-
+        return responseCode;
     }
 
 

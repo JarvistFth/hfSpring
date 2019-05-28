@@ -3,6 +3,14 @@ package com.example.hfspring.Model;
 public class ResponseCode {
     private String Code;
 
+    public ResponseCode(String code, String msg) {
+        Code = code;
+        Msg = msg;
+    }
+    public ResponseCode() {
+
+    }
+
     private String Msg;
 
     public String getCode() {

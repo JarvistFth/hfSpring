@@ -4,6 +4,7 @@ import com.example.hfspring.Utils.ConstantUtils;
 import com.example.hfspring.demo.FabricStore;
 import com.example.hfspring.demo.FabricUser;
 import com.example.hfspring.demo.HFConfig;
+import org.apache.commons.compress.utils.CharsetNames;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hyperledger.fabric.sdk.*;
@@ -85,7 +86,7 @@ public class FabricManager {
 
 
     //constructor
-    public FabricManager() {
+    public FabricManager (){
         config = HFConfig.getConfig();
         this.client = HFClient.createNewInstance();
     }
@@ -96,11 +97,13 @@ public class FabricManager {
         File file = new File(ConstantUtils.resourcesPath + username + ".properties");
         fabricStore = new FabricStore(file);
         user = fabricStore.getMember(username,orgName);
+        logger.info("Fabric user context now :" + user.getName());
         try{
+            hfcaClient = HFCAClient.createNewInstance(config.caInfo);
             setClient(user);
             setChannel();
         }catch (Exception e){
-            e.getMessage();
+            e.printStackTrace();
         }
     }
 
@@ -113,9 +116,7 @@ public class FabricManager {
     public void setChannel() throws InvalidArgumentException, NetworkConfigurationException, TransactionException {
         if(client.getUserContext() != null){
             this.channel = client.loadChannelFromConfig(ConstantUtils.channelName, config.getNetworkConfig());
-            if(!channel.isInitialized()){
-                channel.initialize();
-            }
+            channel.initialize();
             this.chaincodeID = ChaincodeID.newBuilder()
                     .setName(ConstantUtils.chaincodeName)
                     .setPath(ConstantUtils.chaincodePath)
@@ -176,6 +177,10 @@ public class FabricManager {
         tm2.put("method", "TransactionProposalRequest".getBytes(UTF_8));
         tm2.put("result", ":)".getBytes(UTF_8));
         transactionProposalRequest.setTransientMap(tm2);
+        Collection<Peer> peers = channel.getPeers();
+        for(Peer peer:peers){
+            logger.info(peer.getName());
+        }
 
         Collection<ProposalResponse> transactionPropResp =
                 channel.sendTransactionProposal(transactionProposalRequest, channel.getPeers());
@@ -226,19 +231,22 @@ public class FabricManager {
     public boolean registerOnHF(FabricUser user, String username,String affiliation,String password)
     {
         try {
+            hfcaClient = hfcaClient.createNewInstance(config.caInfo);
             RegistrationRequest rr = new RegistrationRequest(username,affiliation);
             rr.setSecret(password);
             String ss = hfcaClient.register(rr,getOrgAdmin());
             user.setEnrollmentSecret(ss);
+            logger.info("register ok");
             return true;
         }catch (Exception e){
 
             return false;
-        }
+         }
     }
 
     public boolean enrollOnHF(FabricUser user,String username,String password){
         try{
+            hfcaClient = hfcaClient.createNewInstance(config.caInfo);
             Enrollment enrollment = hfcaClient.enroll(username,password);
             user.setEnrollment(enrollment);
             user.setMspId(config.clientOrg.getMspId());

@@ -28,20 +28,24 @@ public class userController {
 
     @PostMapping("/register")
     @ResponseBody
-    public String insertUser(@RequestBody Users users){
+    public ResponseCode insertUser(@RequestBody Users users){
         return userServiceImp.userRregister(users);
     }
 
     @PostMapping("/login")
     @ResponseBody
-    public String loginVerify(@RequestBody Users loginUsers){
+    public ResponseCode loginVerify(@RequestBody Users loginUsers){
         boolean verify = userServiceImp.loginVerified(loginUsers);
+        ResponseCode responseCode = new ResponseCode();
         if(verify){
-            return "success";
+            responseCode.setCode("200");
+            responseCode.setMsg("登录成功");
         }
         else{
-            return "failure";
+            responseCode.setCode("400");
+            responseCode.setMsg("用户名密码错误");
         }
+        return responseCode;
     }
 
     @PutMapping("/update")
@@ -51,9 +55,11 @@ public class userController {
     }
 
     @PostMapping("/avatar/{username}")
-    public String uploadAvatar(@PathVariable("username") String username, MultipartFile file){
+    public ResponseCode uploadAvatar(@PathVariable("username") String username, MultipartFile file){
+        ResponseCode responseCode = new ResponseCode();
         if(file.isEmpty()){
-            return "400";
+            responseCode.setMsg("file is not exist");
+            responseCode.setCode("400");
         }
         String filename = username + file.getOriginalFilename();
         String filepath = ConstantUtils.AVATAR_PATH + "/" + filename;
@@ -62,13 +68,16 @@ public class userController {
             file.transferTo(desFile);
             Users users = new Users();
             users.setName(username);
-            users.setAvatar(filepath);
+            users.setAvatar(filename);
             userServiceImp.updateAvatar(users);
-            return "200";
+            responseCode.setMsg("avatar save successfully");
+            responseCode.setCode("200");
         }catch (Exception e){
-            return e.getMessage();
+            e.printStackTrace();
+            responseCode.setMsg(e.getMessage());
+            responseCode.setCode("400");
         }
-
+        return responseCode;
     }
 
 //    @PutMapping("/avatar/{username}/img64={img64}")

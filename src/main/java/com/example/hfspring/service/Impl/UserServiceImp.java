@@ -1,6 +1,7 @@
 package com.example.hfspring.service.Impl;
 
 import com.example.hfspring.Dao.UsersMapper;
+import com.example.hfspring.Model.ResponseCode;
 import com.example.hfspring.Model.Users;
 import com.example.hfspring.Utils.ConstantUtils;
 import com.example.hfspring.demo.FabricStore;
@@ -34,7 +35,7 @@ public class UserServiceImp implements UserService {
 
 
     @Override
-    public String  userRregister(Users users){
+    public ResponseCode userRregister(Users users){
         String userName = users.getName();
         Users SQLusers = new Users();
         try{
@@ -54,7 +55,8 @@ public class UserServiceImp implements UserService {
                 FabricUser user = manager.getFabricStore().getMember(userName,config.clientOrg.getName());
                 if(!user.isRegistered()){
                     logger.info("registering...");
-                    manager.registerOnHF(user,userName,"org1.department1",users.getPassword());
+                    boolean ok =  manager.registerOnHF(user,userName,"org1.department1",users.getPassword());
+                    logger.info(ok);
                 }
 
                 if(!user.isEnrolled()){
@@ -66,12 +68,12 @@ public class UserServiceImp implements UserService {
                 users.setBalance(0);
                 usersMapper.insert(users);
             }catch (Exception e){
-                return e.getMessage();
+                return new ResponseCode(ConstantUtils.REQUEST_ERROR,e.getMessage());
             }
 
-            return ConstantUtils.REQUEST_OK;
+            return new ResponseCode(ConstantUtils.REQUEST_OK,"注册成功!");
         }else{
-            return ConstantUtils.REQUEST_ERROR;
+            return new ResponseCode(ConstantUtils.REQUEST_ERROR,"用户名已注册");
         }
 
     }
@@ -79,8 +81,8 @@ public class UserServiceImp implements UserService {
     @Override
     public boolean loginVerified(Users users) {
         String password = users.getPassword();
-        Users loginuser = usersMapper.selectByName(users.getName());
-        String varifiedPwd = loginuser.getPassword();
+        String varifiedPwd = usersMapper.getUserPassword(users.getName());
+        logger.info(password + "varified pwd :  " + varifiedPwd);
         if(password.equals(varifiedPwd)){
             return true;
         }

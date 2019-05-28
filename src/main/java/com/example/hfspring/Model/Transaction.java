@@ -16,7 +16,7 @@ public class Transaction {
 
     private String newOwnerName;
 
-    private String OrgName;
+    private String orgName;
 
 
 
@@ -70,10 +70,10 @@ public class Transaction {
 
 
     public String getOrgName() {
-        return OrgName;
+        return orgName;
     }
 
     public void setOrgName(String orgName) {
-        OrgName = orgName;
+        this.orgName = orgName;
     }
 }
