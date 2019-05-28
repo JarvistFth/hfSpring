@@ -1,88 +1,114 @@
 package com.example.hfspring.service.Impl;
 
+import com.example.hfspring.Utils.ConstantUtils;
 import com.example.hfspring.fabric.FabricManager;
 import com.example.hfspring.demo.FabricStore;
 import com.example.hfspring.demo.FabricUser;
 import com.example.hfspring.service.TransactionService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 @Service
 public class TransactionServiceImp implements TransactionService {
 
     private Log logger = LogFactory.getLog(TransactionServiceImp.class);
-    private FabricManager manager ;
+
     private FabricStore fabricStore;
     private FabricUser user;
 
-
+    private FabricManager manager = new FabricManager();
 
 
 
     @Override
-    public void initRelics(String relicId, String relicName, String ownerName) {
+    public String initRelics( String relicId, String relicName, String ownerName) {
         try{
-            manager.invoke("initMarble",relicName,ownerName);
+            return manager.invoke("initMarble",relicName,ownerName);
         }catch (Exception e){
             logger.error(e);
+            return e.getMessage();
         }finally {
-            manager.removeALL();
+//            manager.removeALL();
         }
     }
 
     @Override
-    public void queryRelics(String relicId) {
-
-    }
-
-    @Override
-    public void queryAllRelics(String ownerName) {
-
-    }
-
-    @Override
-    public void queryHistory(String id) {
+    public String queryRelics(String relicId) {
         try{
-            manager.invoke("getHistoryForMarble",id);
+            return manager.invoke(ConstantUtils.CC_QUERYBYID,relicId);
         }catch (Exception e){
-            e.printStackTrace();
+            logger.error(e);
+            return e.getMessage();
+        }finally {
+//            manager.removeALL();
+        }
+    }
+
+    @Override
+    public String queryAllRelics(String ownerName) {
+        try{
+            return manager.invoke(ConstantUtils.CC_QUERYBYOWNER,ownerName);
+        }catch (Exception e){
+            return e.getMessage();
+        }finally {
+//            manager.removeALL();
+        }
+    }
+
+    @Override
+    public String queryHistory(String id) {
+        String ret = "";
+        try{
+            return manager.invoke(ConstantUtils.CC_QUERY_HISTORY,id);
+        }catch (Exception e){
+            return e.getMessage();
         }finally {
             manager.removeALL();
         }
-
     }
 
     @Override
-    public void deleteRelics(String id) {
-
+    public String deleteRelics(String id) {
+        try{
+            return manager.invoke(ConstantUtils.CC_DELETE,id);
+        }catch (Exception e){
+            return e.getMessage();
+        }finally {
+            manager.removeALL();
+        }
     }
 
     @Override
-    public void invokeTransaction(String relicId, String newOwnerName) {
-
+    public String invokeTransaction(String relicId, String newOwnerName) {
+        try{
+            return manager.invoke(ConstantUtils.CC_TRANSFER,relicId,newOwnerName);
+        }catch (Exception e){
+            return e.getMessage();
+        }finally {
+//            manager.removeALL();
+        }
     }
 
-    @Override
     public boolean initialize(String userName, String orgName) {
         try{
-            File tmpStoreFile = new File("src/main/resources/_" + userName  +".properties");
+            File tmpStoreFile = new File("src/main/resources/" + userName  +".properties");
             fabricStore = new FabricStore(tmpStoreFile);
-            user = fabricStore.getMember(userName,orgName);
-            manager = FabricManager.getInsatance();
-            manager.setClient(user);
+            FabricUser txUser = fabricStore.getMember(userName,orgName);
+            manager.setFabricStore(fabricStore);
+            manager.setClient(txUser);
             manager.setChannel();
-//            manager.setFabricStore(fabricStore);
+            return true;
         }catch (Exception e){
             logger.error(e);
+            return false;
         }
-        return false;
     }
 
-    @Override
-    public void removeContext() {
 
-    }
 }

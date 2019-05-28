@@ -93,6 +93,25 @@ channels:
         # produce events but the app typically only needs to connect to one to listen to events.
         # Default: true
         eventSource: true
+      peer1.org1.example.com:
+        # [Optional]. will this peer be sent transaction proposals for endorsement? The peer must
+        # have the chaincode installed. The app can also use this property to decide which peers
+        # to send the chaincode install request. Default: true
+        endorsingPeer: true
+
+        # [Optional]. will this peer be sent query proposals? The peer must have the chaincode
+        # installed. The app can also use this property to decide which peers to send the
+        # chaincode install request. Default: true
+        chaincodeQuery: true
+
+        # [Optional]. will this peer be sent query proposals that do not require chaincodes, like
+        # queryBlock(), queryTransaction(), etc. Default: true
+        ledgerQuery: true
+
+        # [Optional]. will this peer be the target of the SDK's listener registration? All peers can
+        # produce events but the app typically only needs to connect to one to listen to events.
+        # Default: true
+        eventSource: true
 
 
     # [Optional]. what chaincodes are expected to exist on this channel? The application can use
@@ -209,7 +228,15 @@ peers:
 
     # this URL is used to connect the EventHub and registering event listeners
     eventUrl: grpc://localhost:7053
+    grpcOptions:
+      grpc.http2.keepalive_time: 15
 
+  peer1.org1.example.com:
+    # this URL is used to send endorsement and query requests
+    url: grpc://localhost:8051
+
+    # this URL is used to connect the EventHub and registering event listeners
+    eventUrl: grpc://localhost:8053
     grpcOptions:
       grpc.http2.keepalive_time: 15
 #      ssl-target-name-override: peer0.org1.example.com

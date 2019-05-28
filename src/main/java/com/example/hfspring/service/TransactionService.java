@@ -11,19 +11,18 @@ public interface TransactionService {
     //query relics ByOwner
     //delete relics
     //query all relics
-    public void initRelics(String relicId, String relicName, String ownerName);
+    public String initRelics(String relicId, String relicName, String ownerName);
 
-    public void queryRelics(String relicId);
+    public String queryRelics(String relicId);
 
-    public void queryAllRelics(String ownerName);
+    public String queryAllRelics(String ownerName);
 
-    public void queryHistory(String id);
+    public String queryHistory(String id);
 
-    public void deleteRelics(String id);
+    public String deleteRelics(String id);
 
-    public void invokeTransaction(String relicId, String newOwnerName);
+    public String invokeTransaction(String relicId, String newOwnerName);
 
     public boolean initialize(String userName, String orgName);
 
-    public void removeContext();
 }

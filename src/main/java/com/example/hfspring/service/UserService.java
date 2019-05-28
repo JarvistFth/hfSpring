@@ -1,11 +1,10 @@
 package com.example.hfspring.service;
 
-import com.example.hfspring.Model.UserVerify;
+import com.example.hfspring.Model.ResponseCode;
 import com.example.hfspring.Model.Users;
-import org.springframework.stereotype.Service;
 
 public interface UserService {
-    boolean userRregister(Users users);
+    ResponseCode userRregister(Users users);
 
     boolean loginVerified(Users users);
 
@@ -13,10 +12,13 @@ public interface UserService {
 
     Users getUsers(String username);
 
-    boolean updateUsers(Users users);
+    int updateUsers(Users users);
 
-    boolean updateUserPassword(UserVerify userVerify);
+    int updatePassword(Users users);
 
+    int updateAvatar(Users users);
+
+    String getAvatar(String name);
 
 
 }

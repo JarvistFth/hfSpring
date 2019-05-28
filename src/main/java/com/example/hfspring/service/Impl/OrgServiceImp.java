@@ -12,14 +12,14 @@ import java.util.List;
 public class OrgServiceImp implements OrganizationService {
 
     @Autowired
-    OrganizationMapper organizationMapper = null;
+    private OrganizationMapper organizationMapper;
 
     @Override
     public boolean createOrg(Organization organization) {
         String userName = organization.getOrgname();
         Organization sqlOrg = new Organization();
         try{
-            sqlOrg = organizationMapper.getOrgFromOrgName(userName);
+            sqlOrg = organizationMapper.selectByOrgName(userName);
         }catch (Exception e){
             e.printStackTrace();
         }

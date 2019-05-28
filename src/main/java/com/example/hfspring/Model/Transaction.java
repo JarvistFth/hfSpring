@@ -3,6 +3,23 @@ package com.example.hfspring.Model;
 public class Transaction {
 
 
+
+    private String relicId;
+
+    private String relicName;
+
+    private Long ownerId;
+
+    private String ownerName;
+
+    private Long newOwnerId;
+
+    private String newOwnerName;
+
+    private String orgName;
+
+
+
     public String getRelicId() {
         return relicId;
     }
@@ -51,25 +68,12 @@ public class Transaction {
         this.newOwnerName = newOwnerName;
     }
 
-    private String relicId;
-
-    private String relicName;
-
-    private Long ownerId;
-
-    private String ownerName;
-
-    private Long newOwnerId;
-
-    private String newOwnerName;
-
-    private String OrgName;
 
     public String getOrgName() {
-        return OrgName;
+        return orgName;
     }
 
     public void setOrgName(String orgName) {
-        OrgName = orgName;
+        this.orgName = orgName;
     }
 }

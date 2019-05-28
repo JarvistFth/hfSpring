@@ -23,15 +23,15 @@
 
     <context id="mysql" defaultModelType="hierarchical" targetRuntime="MyBatis3Simple">
 
-        <property name="autoDelimitKeywords" value="false"></property>
-        <property name="javaFileEncoding" value="UTF-8"></property>
-        <property name="javaFormatter" value="org.mybatis.generator.api.dom.DefaultJavaFormatter"/>
-        <property name="xmlFormatter" value="org.mybatis.generator.api.dom.DefaultXmlFormatter"/>
-        <property name="beginningDelimiter" value="`"/>
-        <property name="endingDelimiter" value="`"/>
+        <property name="autoDelimitKeywords" TXValue="false"></property>
+        <property name="javaFileEncoding" TXValue="UTF-8"></property>
+        <property name="javaFormatter" TXValue="org.mybatis.generator.api.dom.DefaultJavaFormatter"/>
+        <property name="xmlFormatter" TXValue="org.mybatis.generator.api.dom.DefaultXmlFormatter"/>
+        <property name="beginningDelimiter" TXValue="`"/>
+        <property name="endingDelimiter" TXValue="`"/>
 
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://localhost:3306/fabsystem" userId="Jarvist" password="509509">
+                        connectionURL="jdbc:mysql://localhost:3306/fabsystem?nullCatalogMeansCurrent=true" userId="Jarvist" password="509509">
             <!-- 这里面可以设置property属性，每一个property属性都设置到配置的Driver上 -->
         </jdbcConnection>
 
@@ -47,22 +47,22 @@
                     scale=0;length[10,18]：使用Long；
                     scale=0;length[5,9]：使用Integer；
                     scale=0;length<5：使用Short；-->
-            <property name="forceBigDecimals" value="false"/>
+            <property name="forceBigDecimals" TXValue="false"/>
 
         </javaTypeResolver>
 
 
         <javaModelGenerator targetPackage="com.example.hfspring.Model" targetProject="src/main/java">
-            <property name="constructorBased" value="true"></property>
-            <property name="enableSubPackages" value="false"/>
-            <property name="immutable" value="false"/>
-            <property name="trimStrings" value="true"/>
+            <property name="constructorBased" TXValue="true"></property>
+            <property name="enableSubPackages" TXValue="false"/>
+            <property name="immutable" TXValue="false"/>
+            <property name="trimStrings" TXValue="true"/>
 
             <!-- 设置一个根对象，
             如果设置了这个根对象，那么生成的keyClass或者recordClass会继承这个类；在Table的rootClass属性中可以覆盖该选项
             注意：如果在key class或者record class中有root class相同的属性，MBG就不会重新生成这些属性了，包括：
                 1，属性名相同，类型相同，有相同的getter/setter方法； -->
-            <!--<property name="rootClass" value="com._520it.mybatis.domain.BaseDomain"/>-->
+            <!--<property name="rootClass" TXValue="com._520it.mybatis.domain.BaseDomain"/>-->
         </javaModelGenerator>
 
         <!-- 生成SQL map的XML文件生成器，
@@ -71,7 +71,7 @@
         targetPackage/targetProject:同javaModelGenerator     -->
 
         <sqlMapGenerator targetPackage="com.example.hfspring.Mapper" targetProject="src/main/java">
-            <property name="enableSubPackage" value="false"/>
+            <property name="enableSubPackage" TXValue="false"/>
         </sqlMapGenerator>
         <!-- 对于mybatis来说，即生成Mapper接口，注意，如果没有配置该元素，那么默认不会生成Mapper接口
         targetPackage/targetProject:同javaModelGenerator
@@ -85,19 +85,19 @@
         </javaClientGenerator>
 
         <!--<table tableName="users">-->
-            <!--<property name="schema" value="apptest"/>-->
-            <!--<property name="constructorBased" value="false"/>-->
-            <!--<property name="ignoreQualifiersAtRuntime" value="true"/>-->
-            <!--<property name="immutable" value="false"/>-->
-            <!--<property name="modelOnly" value="false"/>-->
+            <!--<property name="schema" TXValue="apptest"/>-->
+            <!--<property name="constructorBased" TXValue="false"/>-->
+            <!--<property name="ignoreQualifiersAtRuntime" TXValue="true"/>-->
+            <!--<property name="immutable" TXValue="false"/>-->
+            <!--<property name="modelOnly" TXValue="false"/>-->
 
             <!--&lt;!&ndash; 注意，该属性只针对MyBatis3Simple有用；-->
             <!--如果选择的runtime是MyBatis3Simple，那么会生成一个SelectAll方法，如果指定了selectAllOrderByClause，那么会在该SQL中添加指定的这个order条件；-->
          <!--&ndash;&gt;-->
-            <!--&lt;!&ndash;<property name="selectAllOrderByClause" value="age desc,username asc"/>&ndash;&gt;-->
+            <!--&lt;!&ndash;<property name="selectAllOrderByClause" TXValue="age desc,username asc"/>&ndash;&gt;-->
 
             <!--&lt;!&ndash; 如果设置为true，生成的model类会直接使用column本身的名字，而不会再使用驼峰命名方法，比如BORN_DATE，生成的属性名字就是BORN_DATE,而不会是bornDate &ndash;&gt;-->
-            <!--<property name="useActualColumnNames" value="false"/>-->
+            <!--<property name="useActualColumnNames" TXValue="false"/>-->
             <!--&lt;!&ndash; generatedKey用于生成生成主键的方法，-->
                         <!--如果设置了该元素，MBG会在生成的<insert>元素中生成一条正确的<selectKey>元素，该元素可选-->
                         <!--column:主键的列名；-->
@@ -134,24 +134,24 @@
              <!--&ndash;&gt;-->
             <!--<columnOverride column="username">-->
                 <!--&lt;!&ndash; 使用property属性来指定列要生成的属性名称 &ndash;&gt;-->
-                <!--<property name="property" value="userName"/>-->
+                <!--<property name="property" TXValue="userName"/>-->
 
                 <!--&lt;!&ndash; javaType用于指定生成的domain的属性类型，使用类型的全限定名-->
-                <!--<property name="javaType" value=""/>-->
+                <!--<property name="javaType" TXValue=""/>-->
                  <!--&ndash;&gt;-->
 
                 <!--&lt;!&ndash; jdbcType用于指定该列的JDBC类型-->
-                <!--<property name="jdbcType" value=""/>-->
+                <!--<property name="jdbcType" TXValue=""/>-->
                  <!--&ndash;&gt;-->
 
                 <!--&lt;!&ndash; typeHandler 用于指定该列使用到的TypeHandler，如果要指定，配置类型处理器的全限定名-->
                     <!--注意，mybatis中，不会生成到mybatis-config.xml中的typeHandler-->
                     <!--只会生成类似：where id = #{id,jdbcType=BIGINT,typeHandler=com._520it.mybatis.MyTypeHandler}的参数描述-->
-                <!--<property name="jdbcType" value=""/>-->
+                <!--<property name="jdbcType" TXValue=""/>-->
                 <!--&ndash;&gt;-->
 
                 <!--&lt;!&ndash; 参考table元素的delimitAllColumns配置，默认为false-->
-                <!--<property name="delimitedColumnName" value=""/>-->
+                <!--<property name="delimitedColumnName" TXValue=""/>-->
                  <!--&ndash;&gt;-->
             <!--</columnOverride>-->
 
@@ -166,10 +166,10 @@
         <!--</table>-->
         <!--<table schema="fabsystem" tableName="users" domainObjectName="Users"></table>-->
         <!--<table schema="fabsystem" tableName="organization" domainObjectName="Organization"></table>-->
-        <!--<table schema="fabsystem" tableName="relics" domainObjectName="Relics"></table>-->
-        <table schema="fabsystem" tableName="userVerify" domainObjectName="UserVerify"></table>
-        <table schema="fabsystem" tableName="role" domainObjectName="Role"></table>
-        <table schema="fabsystem" tableName="user_role" domainObjectName="UserRole"></table>
+        <table schema="fabsystem" tableName="relics" domainObjectName="Relics"></table>
+        <!--<table schema="fabsystem" tableName="role" domainObjectName="Role"></table>-->
+        <!--<table schema="fabsystem" tableName="user_role" domainObjectName="UserRole"></table>-->
+
     </context>
 </generatorConfiguration>
 

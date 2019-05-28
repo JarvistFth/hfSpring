@@ -10,12 +10,8 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hyperledger.fabric.sdk.ChaincodeID;
-import org.hyperledger.fabric.sdk.Channel;
-import org.hyperledger.fabric.sdk.HFClient;
-import org.hyperledger.fabric.sdk.ProposalResponse;
-import org.hyperledger.fabric.sdk.TransactionProposalRequest;
-import org.hyperledger.fabric.sdk.TransactionRequest;
+import org.hyperledger.fabric.protos.discovery.Protocol;
+import org.hyperledger.fabric.sdk.*;
 import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
 import org.hyperledger.fabric.sdk.exception.ProposalException;
 import org.springframework.stereotype.Component;
@@ -27,7 +23,7 @@ public class ChaincodeExecuter {
     private String version;
     private static String chaincodePath = "src/main/java/com/example/hfspring/chaincode";
     private ChaincodeID ccId;
-    private long waitTime = 6000;
+    private long waitTime = 30;
 
     public ChaincodeExecuter(String chaincodeName, String version) {
         this.chaincodeName = chaincodeName;
@@ -82,6 +78,11 @@ public class ChaincodeExecuter {
         List<ProposalResponse> successful = new LinkedList();
         List<ProposalResponse> failed = new LinkedList();
 
+        Collection<Peer> peers = channel.getPeers();
+        for(Peer peer:peers){
+            logger.info(peer.getName());
+        }
+
         Collection<ProposalResponse> transactionPropResp = channel.sendTransactionProposal(transactionProposalRequest, channel.getPeers());
         for (ProposalResponse response : transactionPropResp) {
 
@@ -100,14 +101,7 @@ public class ChaincodeExecuter {
 
         if (invoke) {
             logger.info("Sending transaction to orderers...");
-            channel.sendTransaction(successful).thenApply(transactionEvent -> {
-                logger.info("Orderer response: txid" + transactionEvent.getTransactionID());
-                logger.info("Orderer response: block number: " + transactionEvent.getBlockEvent().getBlockNumber());
-                return null;
-            }).exceptionally(e -> {
-                logger.error("Orderer exception happened: ", e);
-                return null;
-            }).get(waitTime, TimeUnit.SECONDS);
+            channel.sendTransaction(successful).get(waitTime, TimeUnit.SECONDS);
         }
     }
 }
